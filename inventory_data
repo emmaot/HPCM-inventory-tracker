@@ -1,0 +1,1 @@
+0 22 * * * root /home/emma/de-inventory-tracker/get_inventory_data.sh
