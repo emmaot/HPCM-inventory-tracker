@@ -140,8 +140,8 @@ def view_changes():
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(prog='inventory_tracker.py')
-    subparser = parser.add_subparsers(title='subcommand', dest='subcommand')
+    parser = argparse.ArgumentParser(prog='inventory_tracker')
+    subparser = parser.add_subparsers(title='subcommands', dest='subcommand')
     view_parser = subparser.add_parser('view', help="View the changes")
     args = parser.parse_args()
     builddb()
