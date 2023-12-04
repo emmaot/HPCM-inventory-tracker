@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+/home/emma/miniconda3/bin/python
+
 import datetime
 import json
 import os
