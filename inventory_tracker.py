@@ -1,4 +1,4 @@
-/home/emma/miniconda3/bin/python
+#!/home/emma/miniconda3/bin/python
 
 import datetime
 import json
