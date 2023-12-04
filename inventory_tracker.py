@@ -132,7 +132,7 @@ def view_changes():
     """
     shows changes inserted to the table
     """
-    con = sqlite3.connect(r"/Users/emma/Github/de-inventory-tracker/inventory.sqlite")
+    con = sqlite3.connect(r"/home/emma/HPCM-inventory-tracker/inventory.sqlite")
     with con:
         cur = con.cursor()
         cur.execute("SELECT id, timestamp, node, serial_name, serial_number FROM changes")
