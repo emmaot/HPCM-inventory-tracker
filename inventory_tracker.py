@@ -6,21 +6,20 @@ import sqlite3
 import argparse
 from prettytable import from_db_cursor
 
-# todo: update this after testing is complete
-PATH = '/Users/emma/Github/data'
-DBPATH = '/Users/emma/Github/de-inventory-tracker'
 
-# PATH = '/home/emma/de-inventory-tracker/'
-# DBPATH = '/home/emma/de-inventory-tracker/data/'
+DATAPATH = '/home/emma/HPCM-inventory-tracker/data'
+PATH = '/home/emma/HPCM-inventory-tracker'
+
 
 def load_json(input_file):
     """
-    todo: write docstring
+    Loads data in json
     """
     with open(input_file, encoding='utf-8') as f:
         loaded = json.load(f)
 
     return loaded
+
 
 def test_compare_dictionaries():
     """
@@ -52,6 +51,9 @@ def test_compare_dictionaries():
 
 
 def compare_items(dict1, dict2):
+    """
+	Compares items
+	"""
     set1 = set(dict1.items())
     set2 = set(dict2.items())
     # symmetric set difference
@@ -62,7 +64,7 @@ def compare_items(dict1, dict2):
 
 def compare_dictionaries(old_inventory, new_inventory): # pylint: disable=redefined-outer-name
     """
-    todo: write docstring
+    Finds the differences between the nodes by comparing the last two data in the data directory
     """
     all_nodes = sorted(set(list(old_inventory.keys()) + list(new_inventory.keys())))
     diffs = {}
@@ -81,24 +83,25 @@ def compare_dictionaries(old_inventory, new_inventory): # pylint: disable=redefi
             diffs[node] = compare_items(dict1=old_inventory[node], dict2={})
     return diffs
 
+
 def extract_serial_numbers(diffs):
-	"""
+    """
 	Extra all serial number fields from a dictionary of differences.
 	:param diffs: A dictionary of differences
 	"""
-	serials = []
-	for node, differences in diffs.items():
-		for item in differences:
-			if 'Serial Number' in item[0]:
-				serials.append((node, item[0], item[1]))
+    serials = []
+    for node, differences in diffs.items():
+        for item in differences:
+            if 'Serial Number' in item[0]:
+                serials.append((node, item[0], item[1]))
+    return serials
 
-	return serials
 
 def builddb(db: str = 'inventory.sqlite'):
     """
-    todo
+    Builds the database to insert the inventory changes
     """
-    con = sqlite3.connect(DBPATH + '/' + db)
+    con = sqlite3.connect(PATH + '/' + db)
     with con:
         cur = con.cursor()
         cur.execute('''CREATE TABLE IF NOT EXISTS changes(
@@ -109,8 +112,10 @@ def builddb(db: str = 'inventory.sqlite'):
                        serial_number TEXT NOT NULL)''')
         con.commit()
 
+
 def write_to_db(serials, timestamp): # pylint: disable=redefined-outer-name
     """
+    Insert the changes to database
     """
     with sqlite3.connect("inventory.sqlite") as con:
         cur = con.cursor()
@@ -120,8 +125,9 @@ def write_to_db(serials, timestamp): # pylint: disable=redefined-outer-name
             print(data)
             cur.execute(data)
         con.commit()
- 
-def view_changes() -> None:
+
+
+def view_changes():
     """
     shows changes inserted to the table
     """
@@ -144,16 +150,14 @@ if __name__ == '__main__':
         view_changes()
     else:
         timestamp = datetime.datetime.now()
-        files = [obj for obj in os.listdir(PATH) if obj.startswith('de')]
+        files = [obj for obj in os.listdir(DATAPATH) if obj.startswith('de')]
         assert len(files) >= 2
         new_file = files[-1]
         old_file = files[-2]
-        old_inventory = load_json(PATH + '/' + old_file)
-        new_inventory = load_json(PATH + '/' + new_file)
+        old_inventory = load_json(DATAPATH + '/' + old_file)
+        new_inventory = load_json(DATAPATH + '/' + new_file)
         differences = compare_dictionaries(old_inventory=old_inventory, new_inventory=new_inventory)
         serial_differences = extract_serial_numbers(diffs=differences)
 
         # write results to DB
-        # builddb()
         write_to_db(serials=serial_differences, timestamp=timestamp)
-        #print(f'Inserted {len(differences)} records')
